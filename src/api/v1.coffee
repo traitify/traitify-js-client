@@ -172,6 +172,7 @@ class ApiClient
               data = data.replace(/_([a-z])/g, (m, w)->
                   return w.toUpperCase()
               ).replace(/_/g, "")
+
             data = JSON.parse(data)
             callback(data) if callback
             that.resolve = resolve

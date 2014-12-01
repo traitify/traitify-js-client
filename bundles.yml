@@ -1,42 +1,6 @@
 v1: 
   js:
     - "api/v1.js" 
-    - "ui/v1.js"
-    - "builder/v1.js"
-    - "widgets/slide-deck/v1.js"
-    - "widgets/results/default/v1.js"
-    - "widgets/results/personality-types/v1.js"
-    - "widgets/results/personality-traits/v1.js"
-  css:
-    - "widgets/all/v1.css"
-    - "widgets/slide-deck/v1.css"
-    - "widgets/results/default/v1.css"
-    - "widgets/results/personality-types/v1.css"
-    - "widgets/results/personality-traits/v1.css"
 edge: 
   js:
     - "api/master.js" 
-    - "ui/master.js"
-    - "builder/master.js"
-    - "widgets/slide-deck/master.js"
-    - "widgets/results/default/master.js"
-    - "widgets/results/personality-types/master.js"
-    - "widgets/results/personality-traits/master.js"
-  css:
-    - "widgets/all/master.css"
-    - "widgets/slide-deck/master.css"
-    - "widgets/results/default/master.css"
-    - "widgets/results/personality-types/master.css"
-    - "widgets/results/personality-traits/master.css"
-api:
-  js:
-    - "api/master.js"
-api-v1:
-  js:
-    - "api/2.0.js"
-slidedeck-v1:
-  js:
-    - "api/master.js" 
-    - "loader/1.0.js"
-    - "builder/1.0.js"
-    - "widgets/slide-deck/3.0.js"

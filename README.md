@@ -63,28 +63,28 @@ When you initialize the widget we return our widget builder to you (This is the 
 
 ##### Get Decks
 ```JavaScript
-Traitify.getDecks("assessment id", function(data){
+Traitify.getDecks("assessment id").then(function(data){
   console.log(data)
 })
 ```
 
 ##### Get Slides
 ```JavaScript
-Traitify.getSlides("assessment id", function(data){
+Traitify.getSlides("assessment id").then(function(data){
   console.log(data)
 })
 ```
 
 ##### Get Personality Traits
 ```JavaScript
-Traitify.addSlide("assessment id", function(data){
+Traitify.addSlide("assessment id").then(function(data){
     console.log(data)
 })
 ```
 
 ##### Get Personality Traits
 ```JavaScript
-Traitify.getPersonalityTraits("assessment id", function(data){
+Traitify.getPersonalityTraits("assessment id").then(function(data){
     console.log(data)
 })
 ```

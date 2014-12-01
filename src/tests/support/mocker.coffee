@@ -64,6 +64,7 @@ class MockIEXMLRequest
           goodParams = false
       request.method == currentMethod && request.url == currentUrl && goodParams
     )
+
     if request[0]
       @response = JSON.stringify(request[0].response)
       @onload()

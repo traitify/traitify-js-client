@@ -4,6 +4,8 @@ QUnit.module( "Testing API", {setup: ->
   @Traitify.setHost("api-sandbox.traitify.com")
   @Traitify.setPublicKey("gglvv58easpesg9ajbltavb3gr")
   @Traitify.XHR = MockRequest
+  @Traitify.online = ->
+    true
 });
 
 QUnit.test( "API Client Set Host", (assert)->
@@ -28,10 +30,11 @@ QUnit.test( "API Client Set Public Key", (assert)->
   assert.equal( @Traitify.publicKey, "here-is-the-key", "Setting public key Succeeds!" )
 )
 
-QUnit.test("API Client Get Slides", (assert)->
-  @Traitify.getSlides(unPlayedAssessment, (slides)->
+QUnit.asyncTest("API Client Get Slides", (assert)->
+  @Traitify.getSlides(unPlayedAssessment).then((slides)->
     assert.equal( slides.length, 84, "Returns 84 slides" )
     assert.equal( slides[0].caption, "Navigating", "Checking that The Caption of The First Slide Succeeds!" )
+    QUnit.start()
   )
 )
   
@@ -82,21 +85,24 @@ QUnit.test( "Test Beautify", (assert)->
   ) 
 )
 
-QUnit.test("Test Ajax XDomainRequest", (assert)->
+QUnit.asyncTest("Test Ajax XDomainRequest", (assert)->
   ieTraitify = new ApiClient()
   ieTraitify.XHR = MockIEXMLRequest
   window.XDomainRequest = MockRequest
   ieTraitify.setVersion("v1")
   ieTraitify.setHost("api-sandbox.traitify.com")
   ieTraitify.setPublicKey("gglvv58easpesg9ajbltavb3gr")
+  ieTraitify.online = ->
+    true
 
   personalityTypes = ieTraitify.getPersonalityTypes(playedAssessment)
   personalityTypes.then((response)->
     assert.equal(JSON.stringify(response), JSON.stringify(apiFactory.build("personality")), "Checking that The First Deck Succeedss!" )
+    QUnit.start()
   )
 )
 
-QUnit.test("Test NO CORS SUPPORT", (assert)->
+QUnit.asyncTest("Test NO CORS SUPPORT", (assert)->
   ieTraitify = new ApiClient()
   ieTraitify.XHR = MockIEXMLRequest
   delete window["XDomainRequest"]
@@ -106,25 +112,29 @@ QUnit.test("Test NO CORS SUPPORT", (assert)->
   personalityTypes = ieTraitify.getPersonalityTypes(playedAssessment)
   personalityTypes.catch((response)->
     assert.equal(response, "CORS is Not Supported By This Browser", "Checking that The First Deck Succeedss!" )
+    QUnit.start()
   )
 )
 
-QUnit.test("Test Errors", (assert)->
+QUnit.asyncTest("Test Errors", (assert)->
   errorTraitify = new ApiClient()
   errorTraitify.XHR = MockRequestWithError
-  
   errorTraitify.setVersion("v1")
   errorTraitify.setHost("api.traitify.com")
   errorTraitify.setPublicKey("gglvv58easpesg9ajbltavb3gr")
+  errorTraitify.online = ->
+    true
   personalityTypes = errorTraitify.getPersonalityTypes(playedAssessment)
   personalityTypes.catch((response)->
     assert.equal(response, "Mock Request Error", "Checking that The First Deck Succeedss!" )
+    QUnit.start()
   )
 )
 
-QUnit.test("Test Get Personality Traits", (assert)->
+QUnit.asyncTest("Test Get Personality Traits", (assert)->
   personalityTypes = @Traitify.getPersonalityTraits(playedAssessment)
   personalityTypes.then((response)->
     assert.ok(response[0].personality_trait.definition, "Checking that The First Deck Succeedss!" )
+    QUnit.start()
   )
 )
