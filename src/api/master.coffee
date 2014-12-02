@@ -239,9 +239,9 @@ class ApiClient
     else unless typeof XDomainRequest is "undefined"
       if @oldIE
         if url.indexOf("?") == -1
-          url += "?authorization=#{@publicKey}"
+          url += "?authorization=#{@publicKey}&reset_cache=#{date.getTime()}"
         else
-          url += "&authorization=#{@publicKey}"
+          url += "&authorization=#{@publicKey}&reset_cache=#{date.getTime()}"
 
       # XDomainRequest for IE.
       xhr = new XDomainRequest()
