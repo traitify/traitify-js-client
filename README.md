@@ -77,7 +77,7 @@ Traitify.get("/assessments/"+assessmentId+"slides").then(function(data){
 
 ##### Get Slides With URL
 ```JavaScript
-/* CamelCase instead of underscore */
+/* CamelCase instead of Underscore */
 Traitify.setBeautify(true)
 Traitify.getSlides(assessmentId).then(function(data){
     console.log(data)
