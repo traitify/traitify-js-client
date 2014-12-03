@@ -70,7 +70,7 @@ Traitify.getPersonalityTypes("assessment id").then(function(data){
 
 ##### Get Slides Using URL
 ```JavaScript
-Traitify.get("/assessments/"+assessmentId+"slides").then(function(data){
+Traitify.get("/assessments/"+assessmentId+"/slides").then(function(data){
     console.log(data)
 })
 ```
