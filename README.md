@@ -17,11 +17,6 @@ Include the Traitify.js library:
 <script src="https://cdn.traitify.com/lib/v1.js"></script>
 ```
 
-You can initialize using an id or a class on any div tag:
-```HTML
-<div class="traitify-widget"></div> <!-- Example Target Div for the widget -->
-```
-
 The following javascript will initialize with the above html:
 ```HTML
 <script>
@@ -29,32 +24,9 @@ The following javascript will initialize with the above html:
     Traitify.setHost("api-sandbox.traitify.com"); // Example host url (Defaults to api.traitify.com)
     Traitify.setVersion("v1"); // Example Version
     var assessmentId = "34aeraw23-3a43a32-234a34as42"; // Example Assessment id
-
-    traitify = Traitify.ui.load(assessmentId, ".traitify-widget"); // Example selector for widget target
 </script>
 ```
 
-When you initialize the widget we return our widget builder to you (This is the same builder we use to construct the widget).
-```HTML
-<script>
-
-    traitify = Traitify.ui.load(assessmentId, ".traitify-widget")
-    
-    // This callback gives you the ability to trigger an event when
-    // the widget has finished loading
-    traitify.onInitialize(function(){
-        console.log(traitify.data);
-        console.log("Initialized");
-    })
-    
-    // This callback gives you the ability to trigger an event when
-    // the user has finished playing the slide deck
-    traitify.onFinished(function(){
-        console.log(traitify.data);
-        console.log("Finished!");
-    })
-</script>
-```
 ===============
 ### Using Traitify JS API CLIENT:
 ```xhtml
@@ -75,7 +47,7 @@ Traitify.getSlides("assessment id").then(function(data){
 })
 ```
 
-##### Get Personality Traits
+##### Add Slide
 ```JavaScript
 Traitify.addSlide("assessment id").then(function(data){
     console.log(data)
@@ -88,18 +60,34 @@ Traitify.getPersonalityTraits("assessment id").then(function(data){
     console.log(data)
 })
 ```
+
+##### Get Personality Types
+```JavaScript
+Traitify.getPersonalityTypes("assessment id").then(function(data){
+    console.log(data)
+})
+```
+
+##### Get Slides Using URL
+```JavaScript
+Traitify.get("/assessments/"+assessmentId+"slides").then(function(data){
+    console.log(data)
+})
+```
+
+##### Get Slides With URL
+```JavaScript
+\\ CamelCase instead of underscore
+Traitify.setBeautify(true)
+Traitify.getSlides(assessmentId).then(function(data){
+    console.log(data)
+})
+```
+
 ### Using Edge
 Warning, things may break if you use edge, it is not stable, and is not intended to be. If you're looking for a stable deployment then use the v1 bundle from the above cdn.
 ```xhtml
 <script src="https://cdn.traitify.com/lib/edge.js"></script>
-<script>
-    Traitify.setPublicKey("8asdf8sda-f98as-df8ads-fadsf"); // Example Public Key
-    Traitify.setHost("api-sandbox.traitify.com"); // Example host url (Defaults to api.traitify.com)
-    Traitify.setVersion("v1"); // Example Version
-    var assessmentId = "34aeraw23-3a43a32-234a34as42"; // Example Assessment id
-
-    traitify = Traitify.ui.load(assessmentId, ".traitify-widget"); // Example selector for widget target
-</script>
 ```
 
 ### Contributing 
