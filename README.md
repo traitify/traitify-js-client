@@ -20,10 +20,10 @@ Include the Traitify.js library:
 The following javascript will initialize with the above html:
 ```HTML
 <script>
-    Traitify.setPublicKey("8asdf8sda-f98as-df8ads-fadsf"); // Example Public Key
-    Traitify.setHost("api-sandbox.traitify.com"); // Example host url (Defaults to api.traitify.com)
-    Traitify.setVersion("v1"); // Example Version
-    var assessmentId = "34aeraw23-3a43a32-234a34as42"; // Example Assessment id
+  Traitify.setPublicKey("8asdf8sda-f98as-df8ads-fadsf"); // Example Public Key
+  Traitify.setHost("api-sandbox.traitify.com"); // Example host url (Defaults to api.traitify.com)
+  Traitify.setVersion("v1"); // Example Version
+  var assessmentId = "34aeraw23-3a43a32-234a34as42"; // Example Assessment id
 </script>
 ```
 
@@ -50,28 +50,35 @@ Traitify.getSlides("assessment id").then(function(data){
 ##### Add Slide
 ```JavaScript
 Traitify.addSlide("assessment id").then(function(data){
-    console.log(data)
+  console.log(data)
 })
 ```
 
 ##### Get Personality Traits
 ```JavaScript
 Traitify.getPersonalityTraits("assessment id").then(function(data){
-    console.log(data)
+  console.log(data)
 })
 ```
 
 ##### Get Personality Types
 ```JavaScript
 Traitify.getPersonalityTypes("assessment id").then(function(data){
-    console.log(data)
+  console.log(data)
+})
+```
+
+##### Get Careers
+```JavaScript
+Traitify.getCareers("assessment id", function(data){
+  console.log(data)
 })
 ```
 
 ##### Get Slides Using URL
 ```JavaScript
 Traitify.get("/assessments/"+assessmentId+"/slides").then(function(data){
-    console.log(data)
+  console.log(data)
 })
 ```
 
@@ -80,7 +87,7 @@ Traitify.get("/assessments/"+assessmentId+"/slides").then(function(data){
 /* CamelCase instead of Underscore */
 Traitify.setBeautify(true)
 Traitify.getSlides(assessmentId).then(function(data){
-    console.log(data)
+  console.log(data)
 })
 ```
 
@@ -90,7 +97,7 @@ Warning, things may break if you use edge, it is not stable, and is not intended
 <script src="https://cdn.traitify.com/lib/edge.js"></script>
 ```
 
-### Contributing 
+### Contributing
 #### Building, Testing and Bundling:
 ```Shell
 $ cake watch

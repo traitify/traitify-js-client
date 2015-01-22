@@ -20,7 +20,6 @@ unless Array::map
       k++
     A
 
-
 unless Array::filter
   Array::filter = (fun) -> #, thisp
     "use strict"
@@ -54,7 +53,6 @@ unless console
      log: ->
 
     }
-
 
 unless Object.keys
       Object.keys = (->
@@ -111,7 +109,7 @@ SimplePromise = (callback)->
         localPromise.thenCallback(localPromise.data)
       localPromise
     localPromise.resolved = false
-    
+
     localPromise.resolve = (data)->
       localPromise.data = data
       if localPromise.thenCallback
@@ -119,7 +117,7 @@ SimplePromise = (callback)->
       else
         localPromise.resolved = true
       localPromise
-        
+
     localPromise.catch = (callback)->
       if localPromise.rejected
         callback(localPromise.error)
@@ -128,7 +126,7 @@ SimplePromise = (callback)->
         localPromise.rejectCallback = callback
       localPromise
     localPromise.rejected = false
-    
+
     localPromise.reject = (error)->
       localPromise.error = error
       if localPromise.rejectCallback
@@ -136,7 +134,7 @@ SimplePromise = (callback)->
       else
         localPromise.rejected = true
       localPromise
-        
+
     callback(localPromise.resolve, localPromise.reject)
     localPromise
 
@@ -161,7 +159,7 @@ class ApiClient
         @oldIE = false
 
     # Whether you want CamelCase Responses (sets to false by default)
-    @beautify = false  
+    @beautify = false
 
     # XHR sets itself to XMLHttpRequest (This allows you to throw your own source of data if you wish)
     @XHR = XMLHttpRequest
@@ -172,7 +170,7 @@ class ApiClient
   # @example setBeautify(value)
   #   Traitify.setBeautify(true)
   #   Traitify.getPersonalityTypes("assessmentId").then((data)->
-  #     console.log(data)  
+  #     console.log(data)
   #   )
   #
   #
@@ -251,7 +249,7 @@ class ApiClient
       return new SimplePromise((resolve, reject)->
         reject("CORS is Not Supported By This Browser")
       )
-      
+
     xhr
 
     if xhr && !@oldIE
@@ -418,10 +416,10 @@ class ApiClient
     options ?= Object()
     options.image_pack ?= "linear"
     params = Array()
-        
+
     for key in Object.keys(options)
       params.push("#{key}=#{options[key]}")
-        
+
     @get("/assessments/#{id}/personality_types?#{params.join("&")}", callback)
 
   # Get Personality Traits
@@ -440,5 +438,36 @@ class ApiClient
   #
   getPersonalityTraits: (id, options, callback)->
     @get("/assessments/#{id}/personality_traits/raw", callback)
+
+  # Get Careers
+  #
+  # @example getCareers(assessmentId, options, callback)
+  #   options = {
+  #     "number_of_matches": 8
+  #     "experience_levels": "1, 2, 3, 4, 5"
+  #   }
+  #   Traitify.getCareers("your-assessment-id", options, function(data){
+  #     console.log(data)
+  #   })
+  #   # or use the Promise
+  #   Traitify.getCareers("your-assessment-id", options).then((data)->
+  #     console.log(data)
+  #   )
+  #
+  # @param [String] AssessmentId
+  # @param [String] Options
+  # @param [Function] Callback
+  #
+  getCareers: (id, options, callback)->
+    options ?= Object()
+    options.number_of_matches ?= 8
+    params = Array()
+
+    for key in Object.keys(options)
+      params.push("#{key}=#{options[key]}")
+
+    @get("/assessments/#{id}/matches/careers?#{params.join("&")}", callback)
+
+Traitify = new ApiClient()
 
 Traitify = new ApiClient()

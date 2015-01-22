@@ -6,7 +6,7 @@ QUnit.module( "Testing API", {setup: ->
   @Traitify.XHR = MockRequest
   @Traitify.online = ->
     true
-});
+})
 
 QUnit.test( "API Client Set Host", (assert)->
   @Traitify.setHost("hi")
@@ -37,7 +37,7 @@ QUnit.asyncTest("API Client Get Slides", (assert)->
     QUnit.start()
   )
 )
-  
+
 QUnit.asyncTest("API Client Get Decks", (assert)->
   @Traitify.getDecks((decks)->
     assert.equal( decks[0].name, "Career Deck", "Checking that The First Deck Succeeds!" )
@@ -76,13 +76,13 @@ QUnit.test( "Test Beautify", (assert)->
   personalityTypes = @Traitify.getPersonalityTypes(playedAssessment)
   personalityTypes.then((response)->
     assert.ok(["personalityBlend", "personalityTypes"].indexOf(Object.keys(response)[0]) != -1, "Checking that The First Deck Succeeds!" )
-  ) 
+  )
   @Traitify.setBeautify(false)
   personalityTypes = @Traitify.getPersonalityTypes(playedAssessment)
   personalityTypes.then((response)->
     assert.ok(["personality_blend", "personality_types"].indexOf(Object.keys(response)[0]) != -1, "Checking that The First Deck Succeeds!" )
     assert.ok(["personalityBlend", "personalityTypes"].indexOf(Object.keys(response)[0]) == -1, "Checking that The First Deck Succeeds!" )
-  ) 
+  )
 )
 
 QUnit.asyncTest("Test Ajax XDomainRequest", (assert)->
@@ -136,5 +136,12 @@ QUnit.asyncTest("Test Get Personality Traits", (assert)->
   personalityTypes.then((response)->
     assert.ok(response[0].personality_trait.definition, "Checking that The First Deck Succeedss!" )
     QUnit.start()
+  )
+)
+
+QUnit.test("Test Get Careers", (assert)->
+  careers = @Traitify.getCareers(playedAssessment)
+  careers.then((response)->
+    assert.ok(response[0].career.title, "Computer-Controlled Machine Tool Operators, Metal and Plastic" )
   )
 )

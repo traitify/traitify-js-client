@@ -1,3 +1,88 @@
+unless Array::map
+  Array::map = (callback, thisArg) ->
+    T = undefined
+    A = undefined
+    k = undefined
+    throw new TypeError(" this is null or not defined")  unless this?
+    O = Object(this)
+    len = O.length >>> 0
+    throw new TypeError(callback + " is not a function")  if typeof callback isnt "function"
+    T = thisArg  if thisArg
+    A = new Array(len)
+    k = 0
+    while k < len
+      kValue = undefined
+      mappedValue = undefined
+      if k of O
+        kValue = O[k]
+        mappedValue = callback.call(T, kValue, k, O)
+        A[k] = mappedValue
+      k++
+    A
+
+unless Array::filter
+  Array::filter = (fun) -> #, thisp
+    "use strict"
+    throw new TypeError()  if this is undefined or this is null
+    t = Object(this)
+    len = t.length >>> 0
+    throw new TypeError()  if typeof fun isnt "function"
+    res = []
+    thisp = arguments[1]
+    i = 0
+
+    while i < len
+      if i of t
+        val = t[i] # in case fun mutates this
+        res.push val  if fun.call(thisp, val, i, t)
+      i++
+    res
+
+unless Array::indexOf
+  Array::indexOf = (elt) -> #, from
+    len = @length >>> 0
+    from = Number(arguments[1]) or 0
+    from = (if (from < 0) then Math.ceil(from) else Math.floor(from))
+    from += len  if from < 0
+    while from < len
+      return from  if from of this and this[from] is elt
+      from++
+    -1
+unless console
+    console = {
+     log: ->
+
+    }
+
+unless Object.keys
+      Object.keys = (->
+          "use strict"
+          hasOwnProperty = Object::hasOwnProperty
+          hasDontEnumBug = not (toString: null).propertyIsEnumerable("toString")
+          dontEnums = [
+                "toString"
+                "toLocaleString"
+                "valueOf"
+                "hasOwnProperty"
+                "isPrototypeOf"
+                "propertyIsEnumerable"
+                "constructor"
+              ]
+          dontEnumsLength = dontEnums.length
+          (obj) ->
+            throw new TypeError("Object.keys called on non-object")  if typeof obj isnt "object" and (typeof obj isnt "function" or obj is null)
+            result = []
+            prop = undefined
+            i = undefined
+            for prop of obj
+              result.push prop  if hasOwnProperty.call(obj, prop)
+            if hasDontEnumBug
+              i = 0
+              while i < dontEnumsLength
+                result.push dontEnums[i]  if hasOwnProperty.call(obj, dontEnums[i])
+                i++
+            result
+        )()
 # Build a New Widget.
 #
 # @example SimplePromise()
@@ -24,7 +109,7 @@ SimplePromise = (callback)->
         localPromise.thenCallback(localPromise.data)
       localPromise
     localPromise.resolved = false
-    
+
     localPromise.resolve = (data)->
       localPromise.data = data
       if localPromise.thenCallback
@@ -32,7 +117,7 @@ SimplePromise = (callback)->
       else
         localPromise.resolved = true
       localPromise
-        
+
     localPromise.catch = (callback)->
       if localPromise.rejected
         callback(localPromise.error)
@@ -41,7 +126,7 @@ SimplePromise = (callback)->
         localPromise.rejectCallback = callback
       localPromise
     localPromise.rejected = false
-    
+
     localPromise.reject = (error)->
       localPromise.error = error
       if localPromise.rejectCallback
@@ -49,7 +134,7 @@ SimplePromise = (callback)->
       else
         localPromise.rejected = true
       localPromise
-        
+
     callback(localPromise.resolve, localPromise.reject)
     localPromise
 
@@ -66,12 +151,15 @@ class ApiClient
   constructor: ->
     # Your Api Host (sets to https://api.traitify.com by default)
     @host = "https://api.traitify.com"
-    
     # Your Api Version (sets to v1 by default)
     @version = "v1"
+    if navigator.userAgent.match(/MSIE 8/) || navigator.userAgent.match(/MSIE 9/)
+        @oldIE = true
+    else
+        @oldIE = false
 
     # Whether you want CamelCase Responses (sets to false by default)
-    @beautify = false  
+    @beautify = false
 
     # XHR sets itself to XMLHttpRequest (This allows you to throw your own source of data if you wish)
     @XHR = XMLHttpRequest
@@ -82,12 +170,16 @@ class ApiClient
   # @example setBeautify(value)
   #   Traitify.setBeautify(true)
   #   Traitify.getPersonalityTypes("assessmentId").then((data)->
-  #     console.log(data)  
+  #     console.log(data)
   #   )
   #
   #
   # @param [Boolean] BeautifyMode
   #
+  #
+  online: ->
+    navigator.onLine
+
   setBeautify: (mode)->
     @beautify = mode
     @
@@ -135,7 +227,7 @@ class ApiClient
   # @param [Function] Callback
   # @param [String] Params
   #
-  ajax: (method, path, callback, params)->
+  ajax: (method, path, callback, params)-> 
     beautify = @beautify
     url = "#{@host}/#{@version}#{path}"
     xhr = new @XHR()
@@ -143,6 +235,12 @@ class ApiClient
       # XHR for Chrome/Firefox/Opera/Safari.
       xhr.open method, url, true
     else unless typeof XDomainRequest is "undefined"
+      if @oldIE
+        time = (new Date).getTime()
+        if url.indexOf("?") == -1
+          url += "?authorization=#{@publicKey}&reset_cache=#{time}"
+        else
+          url += "&authorization=#{@publicKey}&reset_cache=#{time}"
 
       # XDomainRequest for IE.
       xhr = new XDomainRequest()
@@ -151,28 +249,35 @@ class ApiClient
       return new SimplePromise((resolve, reject)->
         reject("CORS is Not Supported By This Browser")
       )
-      
+
     xhr
 
-    if xhr
+    if xhr && !@oldIE
       xhr.setRequestHeader "Authorization", "Basic " + btoa(@publicKey + ":x")
 
       xhr.setRequestHeader "Content-type", "application/json"
       xhr.setRequestHeader "Accept", "application/json"
     that = this
+    online = @online()
+    oldIE = @oldIE
     promise = new SimplePromise((resolve, reject)->
       that.reject = reject
+
+      unless online
+        return that.reject()
       try
         xhr.onload = ->
           if xhr.status == 404
             that.reject(xhr.response)
           else
-            data = xhr.response
+            if oldIE
+                data = xhr.responseText
+            else
+                data = xhr.response
             if beautify
               data = data.replace(/_([a-z])/g, (m, w)->
-                  return w.toUpperCase()
+                return w.toUpperCase()
               ).replace(/_/g, "")
-
             data = JSON.parse(data)
             callback(data) if callback
             that.resolve = resolve
@@ -203,7 +308,10 @@ class ApiClient
   # @param [String] Params
   #
   put: (path, params, callback) ->
-    @ajax "PUT", path, callback, params
+    if @oldIE
+      @ajax "POST", path, callback, params
+    else
+      @ajax "PUT", path, callback, params
 
   # Make a get request to the api with credentials 
   #
@@ -308,10 +416,10 @@ class ApiClient
     options ?= Object()
     options.image_pack ?= "linear"
     params = Array()
-        
+
     for key in Object.keys(options)
       params.push("#{key}=#{options[key]}")
-        
+
     @get("/assessments/#{id}/personality_types?#{params.join("&")}", callback)
 
   # Get Personality Traits
@@ -330,5 +438,34 @@ class ApiClient
   #
   getPersonalityTraits: (id, options, callback)->
     @get("/assessments/#{id}/personality_traits/raw", callback)
+
+  # Get Careers
+  #
+  # @example getCareers(assessmentId, options, callback)
+  #   options = {
+  #     "number_of_matches": 8
+  #     "experience_levels": "1, 2, 3, 4, 5"
+  #   }
+  #   Traitify.getCareers("your-assessment-id", options, function(data){
+  #     console.log(data)
+  #   })
+  #   # or use the Promise
+  #   Traitify.getCareers("your-assessment-id", options).then((data)->
+  #     console.log(data)
+  #   )
+  #
+  # @param [String] AssessmentId
+  # @param [String] Options
+  # @param [Function] Callback
+  #
+  getCareers: (id, options, callback)->
+    options ?= Object()
+    options.number_of_matches ?= 8
+    params = Array()
+
+    for key in Object.keys(options)
+      params.push("#{key}=#{options[key]}")
+
+    @get("/assessments/#{id}/matches/careers?#{params.join("&")}", callback)
 
 Traitify = new ApiClient()
