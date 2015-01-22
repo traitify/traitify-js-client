@@ -469,5 +469,3 @@ class ApiClient
     @get("/assessments/#{id}/matches/careers?#{params.join("&")}", callback)
 
 Traitify = new ApiClient()
-
-Traitify = new ApiClient()
