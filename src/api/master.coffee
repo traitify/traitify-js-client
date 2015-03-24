@@ -153,7 +153,7 @@ class ApiClient
     @host = "https://api.traitify.com"
     # Your Api Version (sets to v1 by default)
     @version = "v1"
-    if navigator.userAgent.match(/MSIE 8/) || navigator.userAgent.match(/MSIE 9/)
+    if typeof XDomainRequest != "undefined"
         @oldIE = true
     else
         @oldIE = false
@@ -191,8 +191,8 @@ class ApiClient
   # @param [String] ApiHost
   #
   setHost: (host) ->
-    host = host.replace("http://", "").replace("https://", "")
-    host = "https://#{host}"
+    unless host.match(/http/)
+      host = "https://#{host}"
     @host = host
     this
 

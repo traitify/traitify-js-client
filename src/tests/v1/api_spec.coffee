@@ -15,8 +15,6 @@ QUnit.test( "API Client Set Host", (assert)->
   @Traitify.setHost("https://new_hi")
   assert.equal( @Traitify.host, "https://new_hi", "Setting Host with https Succeeds!" )
 
-  @Traitify.setHost("http://new_hi_with_https")
-  assert.equal( @Traitify.host, "https://new_hi_with_https", "Setting Host with http is changed for https Succeeds!" )
 )
 
 QUnit.test( "API Client Set Version", (assert)->

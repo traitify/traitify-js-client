@@ -21,7 +21,7 @@ tag = (type, attrs)->
 
 Number::times = (fn) ->
   for [0..@valueOf()]
-    fn(_i)
+    fn()
 
 UUID = ->
   s4 = ->
