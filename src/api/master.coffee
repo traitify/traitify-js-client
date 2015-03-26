@@ -271,9 +271,9 @@ class ApiClient
             that.reject(xhr.response)
           else
             if oldIE
-                data = xhr.responseText
+              data = xhr.responseText
             else
-                data = xhr.response
+              data = xhr.response
             if beautify
               data = data.replace(/_([a-z])/g, (m, w)->
                 return w.toUpperCase()
@@ -282,7 +282,15 @@ class ApiClient
             callback(data) if callback
             that.resolve = resolve
             that.resolve(data)
-        xhr.send JSON.stringify(params)
+        xhr.onprogress = ->
+        xhr.ontimeout = ->
+        xhr.onerror = ->
+        window.setTimeout(->
+          try
+            xhr.send JSON.stringify(params)
+          catch error
+            that.reject(error)
+        , 0)
         xhr
       catch error
         that.reject(error)
