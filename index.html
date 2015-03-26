@@ -1,1 +1,45 @@
+<html>
+<head>
+<title>Here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="/compiled/api/master.js"></script>
+</head>
+<body>
+<script>
+  App = {
+    createAssessment: function(){
+        return $.ajax({
+          url: "http://localhost:9292/assessments?deck=career-deck",
+          type: "POST",
+          crossDomain: true,
+          success: function (response) {
+        },
+          error: function (xhr, status) {
+            alert("error");
+          }
+        });
+      },
+      getPublicKey: function(){
+        return $.ajax({
+          url: "http://localhost:9292/public_key",
+          type: "POST",
+          crossDomain: true,
+          success: function (response) {
+        },
+          error: function (xhr, status) {
+            alert("error");
+          }
+        });
+      }
+  }
+  App.getPublicKey().then(function(publicKey){
+    Traitify.setPublicKey(publicKey)
+    App.createAssessment().then(function(response){
+      App.assessmentId = response.id
+    })
+  })
+</script>
+</body>
+</html>
+
+

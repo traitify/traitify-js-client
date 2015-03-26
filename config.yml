@@ -1,0 +1,9 @@
+default:
+  secret_key: "plo1hkbk6ffghk0c96vmaj4i85"
+  public_key: "qiohnq1emjqmiebinnli9lskfv"
+  redirect_url: "http://lvh.me:9292"
+  traitify_host: "api-sandbox.traitify.com"
+  traitify_version: "v1"
+  traitify_deck: "career-deck"
+server:
+  port: 8080
