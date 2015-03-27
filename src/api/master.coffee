@@ -195,7 +195,7 @@ class ApiClient
       host = "https://#{host}"
     if @oldIE
       host = host.replace("https", "").replace("http", "")
-      host = "#{location.protocol}://#{host}"
+      host = "#{location.protocol}//#{host}"
     @host = host
     this
 
