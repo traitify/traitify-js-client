@@ -234,7 +234,7 @@ class ApiClient
     beautify = @beautify
     url = "#{@host}/#{@version}#{path}"
     xhr = new @XHR()
-    if "withCredentials" of xhr
+    if "withCredentials" of xhr && !@oldIE
       # XHR for Chrome/Firefox/Opera/Safari.
       xhr.open method, url, true
     else unless typeof XDomainRequest is "undefined"
