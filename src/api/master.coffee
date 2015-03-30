@@ -269,7 +269,7 @@ class ApiClient
     requestKey = method + path + JSON.stringify(params)
 
     requestCache = @requestCache
-    if @requestCache[requestKey] && method == "get"
+    if @requestCache[requestKey]
       return new SimplePromise((resolve, reject)-> resolve(requestCache[requestKey]))
 
     promise = new SimplePromise((resolve, reject)->
@@ -292,7 +292,8 @@ class ApiClient
               ).replace(/_/g, "")
             data = JSON.parse(data)
 
-            requestCache[requestKey] = data
+            if method == "GET"
+              requestCache[requestKey] = data
             callback(data) if callback
             that.resolve = resolve
             that.resolve(data)
