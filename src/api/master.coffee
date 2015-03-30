@@ -104,16 +104,19 @@ unless Object.keys
 SimplePromise = (callback)->
     localPromise = Object()
     localPromise.then = (callback)->
-      localPromise.thenCallback = callback
+      localPromise.thenCallback ?= Array()
+      localPromise.thenCallback.push(callback)
       if localPromise.resolved
-        localPromise.thenCallback(localPromise.data)
+        for callback in localPromise.thenCallback
+            callback(localPromise.data)
       localPromise
     localPromise.resolved = false
 
     localPromise.resolve = (data)->
       localPromise.data = data
       if localPromise.thenCallback
-        localPromise.thenCallback(data)
+        for callback in localPromise.thenCallback
+          callback(data)
       else
         localPromise.resolved = true
       localPromise
@@ -232,12 +235,11 @@ class ApiClient
   #
   ajax: (method, path, callback, params)-> 
     @requestCache ?= Object()
-    @requestCache
     requestKey = method + path + JSON.stringify(params)
 
     requestCache = @requestCache
-    if @requestCache[requestKey]
-      new SimplePromise((resolve, reject)-> resolve(requestCache[requestKey]))
+    if requestCache[requestKey]?
+       requestCache[requestKey]
     else
       beautify = @beautify
       url = "#{@host}/#{@version}#{path}"
@@ -272,6 +274,7 @@ class ApiClient
       that = this
       online = @online()
       oldIE = @oldIE
+      
       promise = new SimplePromise((resolve, reject)->
         that.reject = reject
 
@@ -292,8 +295,6 @@ class ApiClient
                 ).replace(/_/g, "")
               data = JSON.parse(data)
 
-              if method == "GET"
-                requestCache[requestKey] = data
               callback(data) if callback
               that.resolve = resolve
               that.resolve(data)
@@ -311,6 +312,8 @@ class ApiClient
           that.reject(error)
       )
 
+      if method == "GET"
+        requestCache[requestKey] = promise
       promise
 
   # Make a put request to the api with credentials 
