@@ -3,6 +3,16 @@ webserver = require("gulp-webserver")
 cors = require("cors")
 traitify = require("traitify")
 fs = require("fs")
+coffee = require("gulp-coffee")
+watch = require("gulp-watch")
+gutil = require("gulp-util")
+
+gulp.task('coffee', ->
+  gulp.src('./src/**/*.coffee')
+    .pipe(coffee({bare: true}).on('error', gutil.log).on('done', ->
+      gulp.start('scripts')
+    )).pipe(gulp.dest('./compiled'))
+)
 
 gulp.task("server", ->
   express = require('express')
@@ -37,4 +47,11 @@ gulp.task("server", ->
   app.listen(9292)
 )
 
-gulp.task("default", ["server"])
+gulp.task('watch', ->
+  gulp.watch('./src/**/*.coffee', {}, ->
+    gulp.start('coffee');
+  )
+  gulp.start(["coffee"])
+)
+
+gulp.task("default", ["server", "watch"])
