@@ -231,87 +231,87 @@ class ApiClient
   # @param [String] Params
   #
   ajax: (method, path, callback, params)-> 
-    beautify = @beautify
-    url = "#{@host}/#{@version}#{path}"
-    xhr = new @XHR()
-    if "withCredentials" of xhr && !@oldIE
-      # XHR for Chrome/Firefox/Opera/Safari.
-      xhr.open method, url, true
-    else unless typeof XDomainRequest is "undefined"
-      if @oldIE
-        time = (new Date).getTime()
-        if url.indexOf("?") == -1
-          url += "?authorization=#{@publicKey}&reset_cache=#{time}"
-        else
-          url += "&authorization=#{@publicKey}&reset_cache=#{time}"
-
-      # XDomainRequest for IE.
-      xhr = new XDomainRequest()
-      xhr.open method, url
-    else
-      return new SimplePromise((resolve, reject)->
-        reject("CORS is Not Supported By This Browser")
-      )
-
-    xhr
-
-    if xhr && !@oldIE
-      xhr.setRequestHeader "Authorization", "Basic " + btoa(@publicKey + ":x")
-
-      xhr.setRequestHeader "Content-type", "application/json"
-      xhr.setRequestHeader "Accept", "application/json"
-
-    that = this
-    online = @online()
-    oldIE = @oldIE
     @requestCache ?= Object()
     @requestCache
     requestKey = method + path + JSON.stringify(params)
 
     requestCache = @requestCache
     if @requestCache[requestKey]
-      return new SimplePromise((resolve, reject)-> resolve(requestCache[requestKey]))
-
-    promise = new SimplePromise((resolve, reject)->
-      that.reject = reject
-
-      unless online
-        return that.reject()
-      try
-        xhr.onload = ->
-          if xhr.status == 404
-            that.reject(xhr.response)
+      new SimplePromise((resolve, reject)-> resolve(requestCache[requestKey]))
+    else
+      beautify = @beautify
+      url = "#{@host}/#{@version}#{path}"
+      xhr = new @XHR()
+      if "withCredentials" of xhr && !@oldIE
+        # XHR for Chrome/Firefox/Opera/Safari.
+        xhr.open method, url, true
+      else unless typeof XDomainRequest is "undefined"
+        if @oldIE
+          time = (new Date).getTime()
+          if url.indexOf("?") == -1
+            url += "?authorization=#{@publicKey}&reset_cache=#{time}"
           else
-            if oldIE
-              data = xhr.responseText
+            url += "&authorization=#{@publicKey}&reset_cache=#{time}"
+
+        # XDomainRequest for IE.
+        xhr = new XDomainRequest()
+        xhr.open method, url
+      else
+        return new SimplePromise((resolve, reject)->
+          reject("CORS is Not Supported By This Browser")
+        )
+
+      xhr
+
+      if xhr && !@oldIE
+        xhr.setRequestHeader "Authorization", "Basic " + btoa(@publicKey + ":x")
+
+        xhr.setRequestHeader "Content-type", "application/json"
+        xhr.setRequestHeader "Accept", "application/json"
+
+      that = this
+      online = @online()
+      oldIE = @oldIE
+      promise = new SimplePromise((resolve, reject)->
+        that.reject = reject
+
+        unless online
+          return that.reject()
+        try
+          xhr.onload = ->
+            if xhr.status == 404
+              that.reject(xhr.response)
             else
-              data = xhr.response
-            if beautify
-              data = data.replace(/_([a-z])/g, (m, w)->
-                return w.toUpperCase()
-              ).replace(/_/g, "")
-            data = JSON.parse(data)
+              if oldIE
+                data = xhr.responseText
+              else
+                data = xhr.response
+              if beautify
+                data = data.replace(/_([a-z])/g, (m, w)->
+                  return w.toUpperCase()
+                ).replace(/_/g, "")
+              data = JSON.parse(data)
 
-            if method == "GET"
-              requestCache[requestKey] = data
-            callback(data) if callback
-            that.resolve = resolve
-            that.resolve(data)
-        xhr.onprogress = ->
-        xhr.ontimeout = ->
-        xhr.onerror = ->
-        window.setTimeout(->
-          try
-            xhr.send JSON.stringify(params)
-          catch error
-            that.reject(error)
-        , 0)
-        xhr
-      catch error
-        that.reject(error)
-    )
+              if method == "GET"
+                requestCache[requestKey] = data
+              callback(data) if callback
+              that.resolve = resolve
+              that.resolve(data)
+          xhr.onprogress = ->
+          xhr.ontimeout = ->
+          xhr.onerror = ->
+          window.setTimeout(->
+            try
+              xhr.send JSON.stringify(params)
+            catch error
+              that.reject(error)
+          , 0)
+          xhr
+        catch error
+          that.reject(error)
+      )
 
-    promise
+      promise
 
   # Make a put request to the api with credentials 
   #
