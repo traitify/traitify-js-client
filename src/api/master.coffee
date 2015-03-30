@@ -260,20 +260,17 @@ class ApiClient
 
       xhr.setRequestHeader "Content-type", "application/json"
       xhr.setRequestHeader "Accept", "application/json"
+
     that = this
     online = @online()
     oldIE = @oldIE
     @requestCache ?= Object()
     @requestCache
-    requestKeyRaw = method + path + JSON.stringify(params)
-    requestKey = Array()
-    for key in requestKeyRaw
-      requestKey.push(key.charCodeAt(0))
-    requestKey = requestKey.join("")
+    requestKey = method + path + JSON.stringify(params)
 
     requestCache = @requestCache
-    if @requestCache[requestKey] 
-      return new SimplePromise((resolve, reject)-> resolve(requestCache[requestKey]) ) 
+    if @requestCache[requestKey] && method == "get"
+      return new SimplePromise((resolve, reject)-> resolve(requestCache[requestKey]))
 
     promise = new SimplePromise((resolve, reject)->
       that.reject = reject
