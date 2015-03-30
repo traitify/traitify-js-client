@@ -263,6 +263,18 @@ class ApiClient
     that = this
     online = @online()
     oldIE = @oldIE
+    @requestCache ?= Object()
+    @requestCache
+    requestKeyRaw = method + path + JSON.stringify(params)
+    requestKey = Array()
+    for key in requestKeyRaw
+      requestKey.push(key.charCodeAt(0))
+    requestKey = requestKey.join("")
+
+    requestCache = @requestCache
+    if @requestCache[requestKey] 
+      return new SimplePromise((resolve, reject)-> resolve(requestCache[requestKey]) ) 
+
     promise = new SimplePromise((resolve, reject)->
       that.reject = reject
 
@@ -282,6 +294,8 @@ class ApiClient
                 return w.toUpperCase()
               ).replace(/_/g, "")
             data = JSON.parse(data)
+
+            requestCache[requestKey] = data
             callback(data) if callback
             that.resolve = resolve
             that.resolve(data)
