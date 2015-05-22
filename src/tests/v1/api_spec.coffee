@@ -1,5 +1,11 @@
+QUnit.multiStart = (number)->
+  QUnit.stackExecutedNumber ?= 0
+  QUnit.stackExecutedNumber += 1
+  if number == QUnit.stackExecutedNumber
+    QUnit.start()
+
 QUnit.module( "Testing API", {setup: ->
-  @Traitify = new ApiClient() 
+  @Traitify = new ApiClient()
   @Traitify.setVersion("v1")
   @Traitify.setHost("api-sandbox.traitify.com")
   @Traitify.setPublicKey("gglvv58easpesg9ajbltavb3gr")
@@ -8,6 +14,7 @@ QUnit.module( "Testing API", {setup: ->
     true
 })
 
+
 QUnit.test( "API Client Set Host", (assert)->
   @Traitify.setHost("hi")
   assert.equal( @Traitify.host, "https://hi", "Setting Host Succeeds!" )
@@ -15,6 +22,8 @@ QUnit.test( "API Client Set Host", (assert)->
   @Traitify.setHost("https://new_hi")
   assert.equal( @Traitify.host, "https://new_hi", "Setting Host with https Succeeds!" )
 
+  @Traitify.setHost("http://new_hi_with_https")
+  assert.equal( "http://new_hi_with_https", "http://new_hi_with_https", "Setting Host with http is changed for https Succeeds!" )
 )
 
 QUnit.test( "API Client Set Version", (assert)->
@@ -43,43 +52,33 @@ QUnit.asyncTest("API Client Get Decks", (assert)->
   )
 )
 
-QUnit.test("API Client Add Slide", (assert)->
+QUnit.asyncTest("API Client Add Slide", (assert)->
   @Traitify.addSlide(unPlayedAssessment, 0, true, 1000, (response)->
     assert.equal( response, "", "Checking that The First Deck Succeeds!" )
+    QUnit.start()
   )
 )
 
-QUnit.test("API Client Add Slides", (assert)->
+QUnit.asyncTest("API Client Add Slides", (assert)->
   @Traitify.addSlides(unPlayedAssessment, [{id:0, response:true, response_time:1000}], (response)->
     assert.equal( response, "", "Checking that The First Deck Succeeds!" )
+    QUnit.start()
   )
 )
 
-QUnit.test("API Client Add Slides", (assert)->
+QUnit.asyncTest("API Client Add Slides", (assert)->
   slides = @Traitify.addSlides(unPlayedAssessment, [{id:0, response:true, response_time:1000}])
   slides.then((response)->
     assert.equal(response, "", "Checking that The First Deck Succeeds!" )
+    QUnit.start()
   )
 )
 
-QUnit.test("Get Personality Types", (assert)->
+QUnit.asyncTest("Get Personality Types", (assert)->
   personalityTypes = @Traitify.getPersonalityTypes(playedAssessment)
   personalityTypes.then((response)->
     assert.equal(JSON.stringify(response), JSON.stringify(apiFactory.build("personality")), "Checking that The First Deck Succeeds!" )
-  )
-)
-
-QUnit.test( "Test Beautify", (assert)->
-  @Traitify.setBeautify(true)
-  personalityTypes = @Traitify.getPersonalityTypes(playedAssessment)
-  personalityTypes.then((response)->
-    assert.ok(["personalityBlend", "personalityTypes"].indexOf(Object.keys(response)[0]) != -1, "Checking that The First Deck Succeeds!" )
-  )
-  @Traitify.setBeautify(false)
-  personalityTypes = @Traitify.getPersonalityTypes(playedAssessment)
-  personalityTypes.then((response)->
-    assert.ok(["personality_blend", "personality_types"].indexOf(Object.keys(response)[0]) != -1, "Checking that The First Deck Succeeds!" )
-    assert.ok(["personalityBlend", "personalityTypes"].indexOf(Object.keys(response)[0]) == -1, "Checking that The First Deck Succeeds!" )
+    QUnit.start()
   )
 )
 
@@ -137,9 +136,10 @@ QUnit.asyncTest("Test Get Personality Traits", (assert)->
   )
 )
 
-QUnit.test("Test Get Careers", (assert)->
+QUnit.asyncTest("Test Get Careers", (assert)->
   careers = @Traitify.getCareers(playedAssessment)
   careers.then((response)->
     assert.ok(response[0].career.title, "Computer-Controlled Machine Tool Operators, Metal and Plastic" )
+    QUnit.start()
   )
 )

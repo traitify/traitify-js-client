@@ -5,7 +5,7 @@ QUnit.multiStart = (number)->
     QUnit.start()
 
 QUnit.module( "Testing API", {setup: ->
-  @Traitify = new ApiClient() 
+  @Traitify = new ApiClient()
   @Traitify.setVersion("v1")
   @Traitify.setHost("api-sandbox.traitify.com")
   @Traitify.setPublicKey("gglvv58easpesg9ajbltavb3gr")
@@ -79,23 +79,6 @@ QUnit.asyncTest("Get Personality Types", (assert)->
   personalityTypes.then((response)->
     assert.equal(JSON.stringify(response), JSON.stringify(apiFactory.build("personality")), "Checking that The First Deck Succeeds!" )
     QUnit.start()
-  )
-)
-
-QUnit.asyncTest( "Test Beautify", (assert)->
-  @Traitify.setBeautify(true)
-  personalityTypes = @Traitify.getPersonalityTypes(playedAssessment)
-
-  personalityTypes.then((response)->
-    assert.ok(["personalityBlend", "personalityTypes"].indexOf(Object.keys(response)[0]) != -1, "Checking that The First Deck Succeeds!" )
-    QUnit.multiStart(2)
-  )
-  @Traitify.setBeautify(false)
-  personalityTypes = @Traitify.getPersonalityTypes(playedAssessment)
-  personalityTypes.then((response)->
-    assert.ok(["personality_blend", "personality_types"].indexOf(Object.keys(response)[0]) != -1, "Checking that The First Deck Succeeds!" )
-    assert.ok(["personalityBlend", "personalityTypes"].indexOf(Object.keys(response)[0]) == -1, "Checking that The First Deck Succeeds!" )
-    QUnit.multiStart(2)
   )
 )
 

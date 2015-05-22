@@ -104,16 +104,19 @@ unless Object.keys
 SimplePromise = (callback)->
     localPromise = Object()
     localPromise.then = (callback)->
-      localPromise.thenCallback = callback
+      localPromise.thenCallback ?= Array()
+      localPromise.thenCallback.push(callback)
       if localPromise.resolved
-        localPromise.thenCallback(localPromise.data)
+        for callback in localPromise.thenCallback
+            callback(localPromise.data)
       localPromise
     localPromise.resolved = false
 
     localPromise.resolve = (data)->
       localPromise.data = data
       if localPromise.thenCallback
-        localPromise.thenCallback(data)
+        for callback in localPromise.thenCallback
+          callback(data)
       else
         localPromise.resolved = true
       localPromise
@@ -158,31 +161,14 @@ class ApiClient
     else
         @oldIE = false
 
-    # Whether you want CamelCase Responses (sets to false by default)
-    @beautify = false
-
     # XHR sets itself to XMLHttpRequest (This allows you to throw your own source of data if you wish)
     @XHR = XMLHttpRequest
     @
 
-  # Set the Json Objects to have Camel Case Keys
-  #
-  # @example setBeautify(value)
-  #   Traitify.setBeautify(true)
-  #   Traitify.getPersonalityTypes("assessmentId").then((data)->
-  #     console.log(data)
-  #   )
-  #
-  #
-  # @param [Boolean] BeautifyMode
-  #
-  #
+  
   online: ->
     navigator.onLine
 
-  setBeautify: (mode)->
-    @beautify = mode
-    @
 
   # Set the Host for all Api Calls
   #
@@ -193,6 +179,9 @@ class ApiClient
   setHost: (host) ->
     unless host.match(/http/)
       host = "https://#{host}"
+    if @oldIE
+      host = host.replace("https://", "").replace("http://", "")
+      host = "#{location.protocol}//#{host}"
     @host = host
     this
 
@@ -216,7 +205,7 @@ class ApiClient
     @version = version
     this
 
-  # Make an ajax vanilla ajax request to the api with credentials 
+  # Make an ajax vanilla ajax request to the api with credentials
   #
   # @example ajax(method, path, callback, params)
   #   Traitify.ajax("GET", "/decks", function(data){
@@ -227,75 +216,90 @@ class ApiClient
   # @param [Function] Callback
   # @param [String] Params
   #
-  ajax: (method, path, callback, params)-> 
-    beautify = @beautify
-    url = "#{@host}/#{@version}#{path}"
-    xhr = new @XHR()
-    if "withCredentials" of xhr
-      # XHR for Chrome/Firefox/Opera/Safari.
-      xhr.open method, url, true
-    else unless typeof XDomainRequest is "undefined"
-      if @oldIE
-        time = (new Date).getTime()
-        if url.indexOf("?") == -1
-          url += "?authorization=#{@publicKey}&reset_cache=#{time}"
-        else
-          url += "&authorization=#{@publicKey}&reset_cache=#{time}"
+  ajax: (method, path, callback, params)->
+    @requestCache ?= Object()
+    requestKey = method + path + JSON.stringify(params)
 
-      # XDomainRequest for IE.
-      xhr = new XDomainRequest()
-      xhr.open method, url
+    requestCache = @requestCache
+    if requestCache[requestKey]?
+       requestCache[requestKey]
     else
-      return new SimplePromise((resolve, reject)->
-        reject("CORS is Not Supported By This Browser")
+      url = "#{@host}/#{@version}#{path}"
+      xhr = new @XHR()
+      if "withCredentials" of xhr && !@oldIE
+        # XHR for Chrome/Firefox/Opera/Safari.
+        xhr.open method, url, true
+      else unless typeof XDomainRequest is "undefined"
+        if @oldIE
+          time = (new Date).getTime()
+          if url.indexOf("?") == -1
+            url += "?authorization=#{@publicKey}&reset_cache=#{time}"
+          else
+            url += "&authorization=#{@publicKey}&reset_cache=#{time}"
+
+        # XDomainRequest for IE.
+        xhr = new XDomainRequest()
+        xhr.open method, url
+      else
+        return new SimplePromise((resolve, reject)->
+          reject("CORS is Not Supported By This Browser")
+        )
+
+      xhr
+
+      if xhr && !@oldIE
+        xhr.setRequestHeader "Authorization", "Basic " + btoa(@publicKey + ":x")
+
+        xhr.setRequestHeader "Content-type", "application/json"
+        xhr.setRequestHeader "Accept", "application/json"
+
+      that = this
+      online = @online()
+      oldIE = @oldIE
+
+      promise = new SimplePromise((resolve, reject)->
+        that.reject = reject
+
+        unless online
+          return that.reject()
+        try
+          xhr.onload = ->
+            if xhr.status == 404
+              that.reject(xhr.response)
+            else
+              if oldIE
+                data = xhr.responseText
+              else
+                data = xhr.response
+              data = JSON.parse(data)
+
+              callback(data) if callback
+              that.resolve = resolve
+              that.resolve(data)
+          xhr.onprogress = ->
+          xhr.ontimeout = ->
+          xhr.onerror = ->
+          window.setTimeout(->
+            try
+              xhr.send JSON.stringify(params)
+            catch error
+              that.reject(error)
+          , 0)
+          xhr
+        catch error
+          that.reject(error)
       )
 
-    xhr
+      if method == "GET"
+        requestCache[requestKey] = promise
+      promise
 
-    if xhr && !@oldIE
-      xhr.setRequestHeader "Authorization", "Basic " + btoa(@publicKey + ":x")
-
-      xhr.setRequestHeader "Content-type", "application/json"
-      xhr.setRequestHeader "Accept", "application/json"
-    that = this
-    online = @online()
-    oldIE = @oldIE
-    promise = new SimplePromise((resolve, reject)->
-      that.reject = reject
-
-      unless online
-        return that.reject()
-      try
-        xhr.onload = ->
-          if xhr.status == 404
-            that.reject(xhr.response)
-          else
-            if oldIE
-                data = xhr.responseText
-            else
-                data = xhr.response
-            if beautify
-              data = data.replace(/_([a-z])/g, (m, w)->
-                return w.toUpperCase()
-              ).replace(/_/g, "")
-            data = JSON.parse(data)
-            callback(data) if callback
-            that.resolve = resolve
-            that.resolve(data)
-        xhr.send JSON.stringify(params)
-        xhr
-      catch error
-        that.reject(error)
-    )
-
-    promise
-
-  # Make a put request to the api with credentials 
+  # Make a put request to the api with credentials
   #
   # @example put(path, callback, params)
   #   responses = [
   #     {
-  #       "slide_id":"slide-id-goes-here", 
+  #       "slide_id":"slide-id-goes-here",
   #       "value":true,
   #       "time_taken":1000
   #     }
@@ -313,7 +317,7 @@ class ApiClient
     else
       @ajax "PUT", path, callback, params
 
-  # Make a get request to the api with credentials 
+  # Make a get request to the api with credentials
   #
   # @example get(path, callback, params)
   #   Traitify.get("/decks", function(data){
@@ -376,7 +380,7 @@ class ApiClient
   # @example addSlides(assessmentId, slideId, value, timeTaken, callback)
   #   responses = [
   #     {
-  #       "slide_id":"slide-id-goes-here", 
+  #       "slide_id":"slide-id-goes-here",
   #       "value":true,
   #       "time_taken":1000
   #     }

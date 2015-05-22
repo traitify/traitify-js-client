@@ -161,31 +161,12 @@ class ApiClient
     else
         @oldIE = false
 
-    # Whether you want CamelCase Responses (sets to false by default)
-    @beautify = false
-
     # XHR sets itself to XMLHttpRequest (This allows you to throw your own source of data if you wish)
     @XHR = XMLHttpRequest
     @
 
-  # Set the Json Objects to have Camel Case Keys
-  #
-  # @example setBeautify(value)
-  #   Traitify.setBeautify(true)
-  #   Traitify.getPersonalityTypes("assessmentId").then((data)->
-  #     console.log(data)
-  #   )
-  #
-  #
-  # @param [Boolean] BeautifyMode
-  #
-  #
   online: ->
     navigator.onLine
-
-  setBeautify: (mode)->
-    @beautify = mode
-    @
 
   # Set the Host for all Api Calls
   #
@@ -222,7 +203,7 @@ class ApiClient
     @version = version
     this
 
-  # Make an ajax vanilla ajax request to the api with credentials 
+  # Make an ajax vanilla ajax request to the api with credentials
   #
   # @example ajax(method, path, callback, params)
   #   Traitify.ajax("GET", "/decks", function(data){
@@ -233,7 +214,7 @@ class ApiClient
   # @param [Function] Callback
   # @param [String] Params
   #
-  ajax: (method, path, callback, params)-> 
+  ajax: (method, path, callback, params)->
     @requestCache ?= Object()
     requestKey = method + path + JSON.stringify(params)
 
@@ -241,7 +222,6 @@ class ApiClient
     if requestCache[requestKey]?
        requestCache[requestKey]
     else
-      beautify = @beautify
       url = "#{@host}/#{@version}#{path}"
       xhr = new @XHR()
       if "withCredentials" of xhr && !@oldIE
@@ -274,7 +254,7 @@ class ApiClient
       that = this
       online = @online()
       oldIE = @oldIE
-      
+
       promise = new SimplePromise((resolve, reject)->
         that.reject = reject
 
@@ -289,10 +269,6 @@ class ApiClient
                 data = xhr.responseText
               else
                 data = xhr.response
-              if beautify
-                data = data.replace(/_([a-z])/g, (m, w)->
-                  return w.toUpperCase()
-                ).replace(/_/g, "")
               data = JSON.parse(data)
 
               callback(data) if callback
@@ -316,12 +292,12 @@ class ApiClient
         requestCache[requestKey] = promise
       promise
 
-  # Make a put request to the api with credentials 
+  # Make a put request to the api with credentials
   #
   # @example put(path, callback, params)
   #   responses = [
   #     {
-  #       "slide_id":"slide-id-goes-here", 
+  #       "slide_id":"slide-id-goes-here",
   #       "value":true,
   #       "time_taken":1000
   #     }
@@ -339,7 +315,7 @@ class ApiClient
     else
       @ajax "PUT", path, callback, params
 
-  # Make a get request to the api with credentials 
+  # Make a get request to the api with credentials
   #
   # @example get(path, callback, params)
   #   Traitify.get("/decks", function(data){
@@ -402,7 +378,7 @@ class ApiClient
   # @example addSlides(assessmentId, slideId, value, timeTaken, callback)
   #   responses = [
   #     {
-  #       "slide_id":"slide-id-goes-here", 
+  #       "slide_id":"slide-id-goes-here",
   #       "value":true,
   #       "time_taken":1000
   #     }
