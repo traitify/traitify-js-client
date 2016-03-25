@@ -153,6 +153,8 @@ class ApiClient
     @host = "https://api.traitify.com"
     # Your Api Version (sets to v1 by default)
     @version = "v1"
+    # Your Locale (sets to us-english by default)
+    @locale = "us-english"
     if typeof XDomainRequest != "undefined"
         @oldIE = true
     else
@@ -217,6 +219,16 @@ class ApiClient
   #
   setVersion: (version) ->
     @version = version
+    this
+
+  # Set the Locale for all Api Calls
+  #
+  # @example setLocale(value)
+  #   Traitify.setLocale("us-english")
+  # @param [String] Locale
+  #
+  setLocale: (locale) ->
+    @locale = locale
     this
 
   # Make an ajax vanilla ajax request to the api with credentials
@@ -365,7 +377,9 @@ class ApiClient
   # @param [Function] Callback
   #
   getSlides: (assessmentId, callback)->
-    @get("/assessments/#{assessmentId}/slides", callback)
+    url = "/assessments/#{assessmentId}/slides"
+    url += "?locale_key=#{@locale}"
+    @get(url, callback)
 
   # Add Slide
   #
@@ -426,6 +440,7 @@ class ApiClient
   getPersonalityTypes: (id, options, callback)->
     options ?= Object()
     options.image_pack ?= "linear"
+    options.locale_key ?= @locale
     params = Array()
 
     for key in Object.keys(options)
@@ -448,7 +463,14 @@ class ApiClient
   # @param [Function] Callback
   #
   getPersonalityTraits: (id, options, callback)->
-    @get("/assessments/#{id}/personality_traits/raw", callback)
+    options ?= Object()
+    options.locale_key ?= @locale
+    params = Array()
+
+    for key in Object.keys(options)
+      params.push("#{key}=#{options[key]}")
+
+    @get("/assessments/#{id}/personality_traits/raw?#{params.join("&")}", callback)
 
   # Get Careers
   #
@@ -472,6 +494,7 @@ class ApiClient
   getCareers: (id, options, callback)->
     options ?= Object()
     options.number_of_matches ?= 8
+    options.locale_key ?= @locale
     params = Array()
 
     for key in Object.keys(options)
