@@ -153,8 +153,8 @@ class ApiClient
     @host = "https://api.traitify.com"
     # Your Api Version (sets to v1 by default)
     @version = "v1"
-    # Your Locale (sets to us-english by default)
-    @locale = "us-english"
+    # Your Locale (sets to en-us by default)
+    @locale = "en-us"
     if typeof XDomainRequest != "undefined"
         @oldIE = true
     else
@@ -224,7 +224,7 @@ class ApiClient
   # Set the Locale for all Api Calls
   #
   # @example setLocale(value)
-  #   Traitify.setLocale("us-english")
+  #   Traitify.setLocale("en-us")
   # @param [String] Locale
   #
   setLocale: (locale) ->

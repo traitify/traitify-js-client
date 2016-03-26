@@ -9,7 +9,7 @@ QUnit.module( "Testing API", {setup: ->
   @Traitify.setVersion("v1")
   @Traitify.setHost("api-sandbox.traitify.com")
   @Traitify.setPublicKey("gglvv58easpesg9ajbltavb3gr")
-  @Traitify.setLocale("us-english")
+  @Traitify.setLocale("en-us")
   @Traitify.XHR = MockRequest
   @Traitify.online = ->
     true
