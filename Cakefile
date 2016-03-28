@@ -187,7 +187,7 @@ bundle = (callback) ->
         for file in bundles[key].js
           file = "compiled/#{file}"
           fileData = fs.readFileSync(file).toString()
-          minify(ext: ".js", data: fileData, (error, minifiedFileData)->
+          minify(fileData, (error, minifiedFileData)->
             fs.appendFileSync(bundleFile, minifiedFileData);
           )
         if bundles[key].css
@@ -195,7 +195,7 @@ bundle = (callback) ->
             file = "assets/stylesheets/#{file}"
             fileData = fs.readFileSync(file).toString()
 
-            minify(ext: ".css", data: fileData, (error, minifiedFileData)->
+            minify(fileData, (error, minifiedFileData)->
               cleanFileName = file.split("/").slice(0, file.split("/").length - 1).join("/")
               cleanFileName = cleanFileName.replace("assets/stylesheets/widgets/", "")
               minifiedFileData = minifiedFileData.replace(/'/g, '"')
