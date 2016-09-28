@@ -70,7 +70,7 @@ Traitify.getPersonalityTypes("assessment id").then(function(data){
 
 ##### Get Personality Blend
 ```JavaScript
-Traitify.get("/assessments/+"assessment_id+"?data=blend&image_pack=linear").then(function(data){
+Traitify.get("/assessments/+"assessmentId+"?data=blend&image_pack=linear").then(function(data){
   console.log(data)
 })
 ```
