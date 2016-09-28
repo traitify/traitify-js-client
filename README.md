@@ -68,6 +68,13 @@ Traitify.getPersonalityTypes("assessment id").then(function(data){
 })
 ```
 
+##### Get Personality Blend
+```JavaScript
+Traitify.get("/assessments/+"assessment_id+"?data=blend&image_pack=linear").then(function(data){
+  console.log(data)
+})
+```
+
 ##### Get Careers
 ```JavaScript
 Traitify.getCareers("assessment id", function(data){
